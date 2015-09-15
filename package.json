@@ -1,0 +1,32 @@
+{
+    "name": "jsonschema-md",
+    "version": "0.0.1",
+    "description": "Generate Markdown documentation for your JSON schema",
+    "main": "src/index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Joxoo Software Solution",
+    "dependencies": {
+        "lodash": "^2.4.1"
+    },
+    "keywords": [
+        "json-schema",
+        "markdown",
+        "documentation",
+        "md",
+        "jsonschema"
+    ],
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/joxoo/jsonschema-md/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/joxoo/jsonschema-md.git"
+    },
+
+    "bin": {
+        "jsondocs-md": "src/index.js"
+    }
+}
