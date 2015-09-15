@@ -1,6 +1,6 @@
 {
     "name": "jsonschema-md",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Generate Markdown documentation for your JSON schema",
     "main": "src/index.js",
     "scripts": {
@@ -27,6 +27,6 @@
     },
 
     "bin": {
-        "jsondocs-md": "src/index.js"
+        "jsonschema-md": "src/index.js"
     }
 }
