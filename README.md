@@ -11,4 +11,4 @@ npm install jsonschema-md -g
 
 ## Usage
 
-jsonschema-md path/to/json-schema.json path/to/docs/schema.md
+jsonschema-md path/to/json-schema.json > path/to/docs/schema.md

@@ -3,7 +3,8 @@ var path = require('path');
 var _  = require('lodash');
 var type = require('./type');
 
-function parser( file ) {
+function parser( file, tokens ) {
+    this.tokens = tokens;
     this.path = path.dirname(path.resolve(file));
     this.json = JSON.parse(fs.readFileSync(file, 'utf8'));
 }
@@ -26,101 +27,91 @@ parser.prototype._loadReferencesForItem = function (item) {
     return item;
 };
 
-parser.prototype._getDescription = function(item, key) {
-    var typeDesc = type.enum(item);
-
-    if (item.type === 'object') {
-        return '[Description...](#' + key.toLowerCase() + ')';
+parser.prototype._parseRequired = function (tokenName, required, oneOf, anyOf) {
+    var self = this;
+    if (required) {
+        self.tokens.addToToken(tokenName, 'required', required);
     }
-
-    if(item.items && item.items.type === 'object') {
-        return '[Description...](#' + key.toLowerCase() + ')';
+    if (oneOf) {
+        _.forIn(oneOf, function ( value ) {
+            if (value.required) {
+                self.tokens.addToToken(tokenName, 'requiredOneOf', value.required);
+            }
+        });
     }
-
-    if (typeDesc) {
-        return (item.description? item.description.trim() + '<br>' + typeDesc: typeDesc);
+    if (anyOf) {
+        _.forIn(anyOf, function ( value ) {
+            if (value.required) {
+                self.tokens.addToToken(tokenName, 'requiredAnyOf', value.required);
+            }
+        });
     }
-    return item.description || '';
 };
 
-parser.prototype._getName = function(item, key) {
-    if (item.type === 'object') {
-        return '[' + key + '](#' + key.toLowerCase() + ')';
-    }
-
-    if(item.items && item.items.type === 'object') {
-        return '[' + key + '](#' + key.toLowerCase() + ')';
-    }
-
-    return key;
-};
-
-parser.prototype._parseProperties = function (properties, required, tokens) {
+parser.prototype._parseProperties = function (tokenName, properties) {
     var subProps = {}, self = this;
-    tokens.push('| Name    | Type    | Description | Example |');
-    tokens.push('| ------- | ------- | ----------- | ------- |');
     _.forIn(properties, function ( value, key ) {
-        var value = self._loadReferencesForItem(value),
-            description = self._getDescription(value, key),
-            name = self._getName(value, key);
+        var value = self._loadReferencesForItem(value);
 
         if (value.type === 'object') {
+
             subProps[key] = value;
         }
 
-        if(value.items && value.items.type === 'object') {
+        if(value.items) {
             subProps[key + ':' + value.items.title] = value.items;
         }
-        tokens.push('| ' + name + ' | ' + value.type + ' | ' + description + ' | ' + value.example + ' |')
+        self.tokens.addToToken(tokenName, 'props:' + key, {
+            'name': key,
+            'type': value.type,
+            'description' : value.description,
+            'allowed': type(value),
+            'example': value.example})
     });
-    this._parseSubProps(subProps, tokens);
+    this._parseSubProps(subProps);
 };
 
-parser.prototype._parseSubProps = function(subProps, tokens) {
+parser.prototype._parseSubProps = function(subProps) {
     var self = this;
-    _.forIn(subProps, function ( json, key ) {
-        tokens.push('', '###' + key);
-        if(json.description) {
-            tokens.push('__' + json.description.trim() + '__');
-        }
-        tokens.push('', '#####Type:' + json.type, '');
 
+    _.forIn(subProps, function ( json, key ) {
+
+        var tokenName = key;
+        self.tokens.addToToken(tokenName, 'title', json.title);
+        self.tokens.addToToken(tokenName, 'description', json.description);
+        self.tokens.addToToken(tokenName, 'type', json.type);
+        self.tokens.addToToken(tokenName, 'allowed', type(json));
 
         if (json.properties) {
-            self._parseProperties(json.properties, (json.required || json.oneOf || json.anyOf), tokens);
+            self._parseProperties(tokenName, json.properties);
+            self._parseRequired(tokenName, json.required, json.oneOf, json.anyOf)
         }
     });
 };
 
-parser.prototype._parse = function(json, tokens) {
-    _.forIn(json, function ( value, key ) {
-        switch(key) {
-            case 'title':
-                tokens.push('##' + value);
-                break;
-            case 'description':
-                tokens.push('__' + value + '__');
-                tokens.push('');
-                break;
-            case 'type':
-                tokens.push("###Type: " + value);
-                tokens.push('');
+parser.prototype._parse = function(json) {
+    var tokenName = json.id || 'default';
+    this.tokens.addToToken(tokenName, 'title', json.title);
+    this.tokens.addToToken(tokenName, 'description', json.description);
+    if (typeof json.type === 'string' ) {
+        this.tokens.addToToken(tokenName, 'type', json.type);
+    }
 
-        }
-    });
     if (json.properties) {
-        this._parseProperties(json.properties, (json.required || json.oneOf || json.anyOf), tokens);
+        this._parseProperties(tokenName, json.properties);
     }
 };
 
-parser.prototype.parse = function () {
-    var tokens = [];
+parser.prototype.parse = function ( callback ) {
+    try {
+        this._parse(this.json);
+        callback();
+    } catch (e) {
+        callback(e)
+    }
 
-    this._parse(this.json, tokens);
-
-    console.log(tokens.join("\n"));
 };
 
-module.exports = function( file ) {
-    return new parser(file);
+module.exports = function( file, tokens ) {
+    return new parser(file, tokens);
 };
