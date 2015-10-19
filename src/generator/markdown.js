@@ -25,6 +25,9 @@ markdown.prototype.headline = function (string, size) {
 };
 
 markdown.prototype.description = function (string) {
+    if (_.isArray(string)) {
+        string = '* ' + string.join('\n* ');
+    }
     var description = string || 'add description to json file';
     this.lines.push( '__' + description.trim() + '__', '');
 };
