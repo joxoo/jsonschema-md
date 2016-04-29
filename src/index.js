@@ -1,34 +1,30 @@
-#!/usr/bin/env node
+const file = process.argv[2];
+const parser = require('./parser');
+const tokens = require('./tokens');
+const Markdown = require('./generator/markdown');
+const stdout = process.stdout;
+const stderr = process.stderr;
 
-var file = process.argv[2],
-    parser = require('./parser'),
-    tokens = require('./tokens'),
-    markdown = require('./generator/markdown'),
-    stdout   = process.stdout,
-    stderr   = process.stderr;
-
-if(!file) {
-    console.error('No json schema file specified');
-    process.exit()
+if (!file) {
+  console.error('No json schema file specified');
+  process.exit();
 }
 
 try {
-
-    var schema = parser(file, tokens),
-        generator = new markdown(tokens);
-        schema.parse( function ( err ) {
-            if (err) {
-                stderr.write(String(err));
-                stderr.write(err.stack);
-                process.exit();
-                return;
-            }
-            var output = generator.generate();
-            stdout.write(output);
-        });
-
-} catch(e) {
-    stderr.write(String(e));
-    stderr.write(e.stack);
-    process.exit()
+  const schema = parser(file, tokens);
+  const generator = new Markdown(tokens);
+  schema.parse((err) => {
+    if (err) {
+      stderr.write(String(err));
+      stderr.write(err.stack);
+      process.exit();
+      return;
+    }
+    const output = generator.generate();
+    stdout.write(output);
+  });
+} catch (e) {
+  stderr.write(String(e));
+  stderr.write(e.stack);
+  process.exit();
 }

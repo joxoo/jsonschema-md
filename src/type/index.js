@@ -1,7 +1,7 @@
-var enumeration = require('./enum');
-var pattern = require('./pattern');
+const enumeration = require('./enum');
+const pattern = require('./pattern');
 
-module.exports = function( item ) {
-    var type = enumeration(item) || pattern(item);
-    return type;
+module.exports = (item) => {
+  const type = enumeration(item) || pattern(item);
+  return type;
 };
