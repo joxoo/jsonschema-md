@@ -1,46 +1,49 @@
 'use strict';
 
-var _ = require('lodash');
+const _ = require('lodash');
+const objectAssign = require('object-assign');
 
-function token() {
-    this.tokens = {};
+function Token() {
+  this.tokens = {};
 }
 
-token.prototype.addToToken = function (tokenName, key, value) {
-    var token = this.getToken(tokenName);
+objectAssign(Token.prototype, {
+  addToToken(tokenName, key, value) {
+    const token = this.getToken(tokenName);
 
     if (!token[key]) {
-        token[key] = value;
-        return this;
+      token[key] = value;
+      return this;
     }
     if (token[key] === value) {
-        return this;
+      return this;
     }
     if (typeof value === 'object') {
-        if (value.length) {
-            token[key] = token[key].concat(value);
-        } else {
-            token[key] = _.assign(token[key], value);
-        }
-        return this;
+      if (value.length) {
+        token[key] = token[key].concat(value);
+      } else {
+        token[key] = _.assign(token[key], value);
+      }
+      return this;
     }
     token[key] += value;
     return this;
-};
+  },
 
-token.prototype.hasToken = function (token) {
+  hasToken(token) {
     return Boolean(this.tokens[token]);
-};
+  },
 
-token.prototype.getToken = function (token) {
+  getToken(token) {
     if (!this.hasToken(token)) {
-        this.tokens[token] = {};
+      this.tokens[token] = {};
     }
     return this.tokens[token];
-};
+  },
 
-token.prototype.getTokens = function() {
+  getTokens() {
     return this.tokens;
-};
+  }
+});
 
-module.exports = new token();
+module.exports = new Token();
