@@ -8,8 +8,10 @@
   },
   "author": "Joxoo Software Solution",
   "dependencies": {
+    "chalk": "^1.1.3",
     "lodash": "^2.4.1",
-    "object-assign": "^4.0.1"
+    "object-assign": "^4.0.1",
+    "yargs": "^4.6.0"
   },
   "keywords": [
     "json-schema",

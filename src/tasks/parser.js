@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
-const type = require('./type');
+const type = require('../type');
 const objectAssign = require('object-assign');
 
 function Parser(file, tokens) {
