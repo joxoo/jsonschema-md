@@ -1,34 +1,28 @@
-#!/usr/bin/env node
+const parser = require('./tasks/parser');
+const tokens = require('./tasks/tokens');
+const Markdown = require('./generator/markdown');
+const errHandler = require('./common/errHandler');
+const path = require('path');
+const fs = require('fs');
 
-var file = process.argv[2],
-    parser = require('./parser'),
-    tokens = require('./tokens'),
-    markdown = require('./generator/markdown'),
-    stdout   = process.stdout,
-    stderr   = process.stderr;
+const process = (file, output) => {
+  if (!file) {
+    errHandler('No File, exiting!', 'err');
+  }
+  const outputFile = output || path.basename(file).split('.')[0];
+  try {
+    const schema = parser(file, tokens);
+    const generator = new Markdown(tokens);
+    schema.parse((err) => {
+      if (err) {
+        errHandler(err, 'err');
+      }
+      const mdOutput = generator.generate();
+      fs.writeFileSync(`${outputFile}`, mdOutput);
+    });
+  } catch (e) {
+    errHandler(e, 'err');
+  }
+};
 
-if(!file) {
-    console.error('No json schema file specified');
-    process.exit()
-}
-
-try {
-
-    var schema = parser(file, tokens),
-        generator = new markdown(tokens);
-        schema.parse( function ( err ) {
-            if (err) {
-                stderr.write(String(err));
-                stderr.write(err.stack);
-                process.exit();
-                return;
-            }
-            var output = generator.generate();
-            stdout.write(output);
-        });
-
-} catch(e) {
-    stderr.write(String(e));
-    stderr.write(e.stack);
-    process.exit()
-}
+module.exports = process;
