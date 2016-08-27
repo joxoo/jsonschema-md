@@ -9,7 +9,7 @@ var file = process.argv[2],
 
 if(!file) {
     console.error('No json schema file specified');
-    process.exit()
+    process.exit();
 }
 
 try {
@@ -30,5 +30,5 @@ try {
 } catch(e) {
     stderr.write(String(e));
     stderr.write(e.stack);
-    process.exit()
+    process.exit();
 }

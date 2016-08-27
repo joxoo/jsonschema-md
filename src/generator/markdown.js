@@ -4,7 +4,7 @@ var _ = require('lodash');
 
 function markdown(tokens) {
     this.tokens = tokens;
-    this.lines = []
+    this.lines = [];
 }
 
 markdown.prototype.required = function (values, key) {
@@ -21,7 +21,7 @@ markdown.prototype.anker= function (string) {
 
 markdown.prototype.headline = function (string, size) {
     var headline = new Array((size || 1) + 1).join('#');
-    this.lines.push( headline + string, '');
+    this.lines.push( headline + ' ' + string, '');
 };
 
 markdown.prototype.description = function (string) {
@@ -50,7 +50,7 @@ markdown.prototype.table = function ( items ) {
         if (property.allowed && !self.tokens.hasToken(name)) {
             allowed[name] = property.allowed;
         }
-        self.lines.push('| ' + name + ' | ' + type + ' | ' + description + ' | ' + example + ' |')
+        self.lines.push('| ' + name + ' | ' + type + ' | ' + description + ' | ' + example + ' |');
 
     });
 
@@ -76,13 +76,13 @@ markdown.prototype.generate = function () {
         self.description(item.description);
 
         if (item.required) {
-            self.required(item.required)
+            self.required(item.required);
         }
         if (item.requiredOneOf) {
-            self.required(item.requiredOneOf, 'one of')
+            self.required(item.requiredOneOf, 'one of');
         }
         if (item.requiredAnyOf) {
-            self.required(item.requiredAnyOf, 'any of')
+            self.required(item.requiredAnyOf, 'any of');
         }
         if (item.allowed) {
             self.allowed(item.allowed);
@@ -91,7 +91,7 @@ markdown.prototype.generate = function () {
         _.forIn(item, function(property, key) {
            if( key.indexOf('props:') === 0) {
                table.push(property);
-           } 
+           }
         });
         if (table.length) {
             self.table(table);
