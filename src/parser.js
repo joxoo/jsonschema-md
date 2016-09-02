@@ -66,7 +66,7 @@ parser.prototype._parseProperties = function (tokenName, properties) {
             'type': value.type,
             'description' : value.description,
             'allowed': type(value),
-            'example': value.example})
+            'example': value.example});
     });
     this._parseSubProps(subProps);
 };
@@ -84,7 +84,7 @@ parser.prototype._parseSubProps = function(subProps) {
 
         if (json.properties) {
             self._parseProperties(tokenName, json.properties);
-            self._parseRequired(tokenName, json.required, json.oneOf, json.anyOf)
+            self._parseRequired(tokenName, json.required, json.oneOf, json.anyOf);
         }
     });
 };
@@ -107,7 +107,7 @@ parser.prototype.parse = function ( callback ) {
         this._parse(this.json);
         callback();
     } catch (e) {
-        callback(e)
+        callback(e);
     }
 
 };
